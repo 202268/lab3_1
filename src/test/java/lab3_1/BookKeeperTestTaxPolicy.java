@@ -8,7 +8,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
-import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.BookKeeper;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.Invoice;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.InvoiceFactory;
@@ -24,7 +23,6 @@ import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.util.Currency;
-import java.util.Date;
 import java.util.Locale;
 class TaxDouble implements TaxPolicy{
 	@Override
@@ -51,7 +49,6 @@ public class BookKeeperTestTaxPolicy {
 		invoiceRequest=new InvoiceRequest(clientData);
 		money=new Money(new BigDecimal(100), Currency.getInstance(Locale.UK));
 		taxPolicy=new TaxDouble();
-		
 	}
 	@Test
 	public void RequestIssuanceWithOneParameterShouldReturnOneInvoice() {
@@ -72,11 +69,8 @@ public class BookKeeperTestTaxPolicy {
 	@Test
 	public void RequestIssuanceWithOneParameterSpecifiedQuantityShouldReturnExpectedValuesInInvoice() {
 		requestItem=new RequestItemDouble(productData, 150, money);
-		RequestItemDouble requestItem2=new RequestItemDouble(productData, 2, money);
 		invoiceRequest.add(requestItem);
-		invoiceRequest.add(requestItem2);
 		Invoice invoice=bookKeeper.issuance(invoiceRequest, taxPolicy);	
 		assertThat(invoice.getItems().get(0).getQuantity(), Matchers.is(150));
 	}
-	
 }
