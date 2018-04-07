@@ -73,4 +73,9 @@ public class BookKeeperTestTaxPolicy {
 		Invoice invoice=bookKeeper.issuance(invoiceRequest, taxPolicy);	
 		assertThat(invoice.getItems().get(0).getQuantity(), Matchers.is(150));
 	}
+	@Test
+	public void RequestIssuanceWithoutParametersShouldntCallAnyMethod() {
+		Invoice invoice=bookKeeper.issuance(invoiceRequest, taxPolicy);	
+		verify(productData, times(0)).getType();
+	}
 }
