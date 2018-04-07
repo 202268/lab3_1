@@ -6,13 +6,11 @@ import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.BookKeeper;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.Invoice;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.InvoiceFactory;
-import pl.com.bottega.ecommerce.sales.domain.invoicing.InvoiceLine;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.InvoiceRequest;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.RequestItemDouble;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.Tax;
@@ -27,15 +25,10 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Locale;
 class TaxDouble implements TaxPolicy{
-	private int counter; 
 	@Override
 	public Tax calculateTax(ProductType productType, Money net) {
 		counter++;
 		return new Tax(net, "");
-	}
-	
-	public int getCounter() {
-		return counter;
 	}
 }
 public class BookKeeperTestTaxPolicy {
@@ -73,6 +66,6 @@ public class BookKeeperTestTaxPolicy {
 		invoiceRequest.add(requestItem);
 		invoiceRequest.add(requestItem2);
 		Invoice invoice=bookKeeper.issuance(invoiceRequest, tax);	
-		assertThat(tax.getCounter(), Matchers.is(2));	
+		verify(productData, times(2)).getType();
 	}
 }
