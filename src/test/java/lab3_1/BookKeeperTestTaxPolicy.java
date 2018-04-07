@@ -27,7 +27,6 @@ import java.util.Locale;
 class TaxDouble implements TaxPolicy{
 	@Override
 	public Tax calculateTax(ProductType productType, Money net) {
-		counter++;
 		return new Tax(net, "");
 	}
 }
@@ -68,4 +67,6 @@ public class BookKeeperTestTaxPolicy {
 		Invoice invoice=bookKeeper.issuance(invoiceRequest, tax);	
 		verify(productData, times(2)).getType();
 	}
+	@Test
+	
 }
