@@ -1,5 +1,4 @@
 package lab3_1;
-
 import static org.junit.Assert.*;
 
 import org.hamcrest.Matchers;
@@ -24,16 +23,9 @@ import static org.mockito.Mockito.*;
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Locale;
-class TaxDouble implements TaxPolicy{
-	@Override
-	public Tax calculateTax(ProductType productType, Money net) {
-		return new Tax(net, "");
-	}
-}
-public class BookKeeperTestTaxPolicy {
-	@Mock
+
+public class BookKeeperTest {
 	ClientData clientData;
-	@Mock
 	ProductData productData;
 	TaxPolicy taxPolicy;
 	BookKeeper bookKeeper;
@@ -46,9 +38,10 @@ public class BookKeeperTestTaxPolicy {
 		bookKeeper=new BookKeeper(new InvoiceFactory());
 		clientData=mock(ClientData.class);
 		productData=mock(ProductData.class);
+		taxPolicy=mock(TaxPolicy.class);
 		invoiceRequest=new InvoiceRequest(clientData);
 		money=new Money(new BigDecimal(100), Currency.getInstance(Locale.UK));
-		taxPolicy=new TaxDouble();
+		when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(new Tax(money, ""));
 	}
 	@Test
 	public void RequestIssuanceWithOneParameterShouldReturnOneInvoice() {
@@ -63,8 +56,8 @@ public class BookKeeperTestTaxPolicy {
 		RequestItemDouble requestItem2=new RequestItemDouble(productData, 2, money);
 		invoiceRequest.add(requestItem);
 		invoiceRequest.add(requestItem2);
-		Invoice invoice=bookKeeper.issuance(invoiceRequest, taxPolicy);	
-		verify(productData, times(2)).getType();
+		bookKeeper.issuance(invoiceRequest, taxPolicy);	
+		verify(taxPolicy, times(2)).calculateTax(any(ProductType.class), any(Money.class));
 	}
 	@Test
 	public void RequestIssuanceWithOneParameterSpecifiedQuantityShouldReturnExpectedValuesInInvoice() {
@@ -75,7 +68,7 @@ public class BookKeeperTestTaxPolicy {
 	}
 	@Test
 	public void RequestIssuanceWithoutParametersShouldntCallAnyMethod() {
-		Invoice invoice=bookKeeper.issuance(invoiceRequest, taxPolicy);	
-		verify(productData, times(0)).getType();
+		bookKeeper.issuance(invoiceRequest, taxPolicy);	
+		verify(taxPolicy, times(0)).calculateTax(any(ProductType.class), any(Money.class));
 	}
 }
