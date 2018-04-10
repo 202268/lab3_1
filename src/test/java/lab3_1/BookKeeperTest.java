@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
+import pl.com.bottega.ecommerce.sales.domain.client.Client;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.BookKeeper;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.Invoice;
 import pl.com.bottega.ecommerce.sales.domain.invoicing.InvoiceFactory;
@@ -20,6 +21,7 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 import static org.mockito.Mockito.*;
 
+import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Locale;
@@ -36,12 +38,13 @@ public class BookKeeperTest {
 	@Before
 	public void setUp() {
 		bookKeeper=new BookKeeper(new InvoiceFactory());
-		clientData=mock(ClientData.class);
+		clientData=new Client().generateSnapshot();
 		productData=mock(ProductData.class);
 		taxPolicy=mock(TaxPolicy.class);
 		invoiceRequest=new InvoiceRequest(clientData);
 		money=new Money(new BigDecimal(100), Currency.getInstance(Locale.UK));
 		when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(new Tax(money, ""));
+		
 	}
 	@Test
 	public void RequestIssuanceWithOneParameterShouldReturnOneInvoice() {
