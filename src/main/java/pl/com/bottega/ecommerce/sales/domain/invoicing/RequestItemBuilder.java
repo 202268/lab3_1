@@ -9,23 +9,27 @@ public class RequestItemBuilder {
 	private int quantity;
 
 	private Money totalCost;
-	
+
 	public RequestItem build() {
 		return new RequestItem(productData, quantity, totalCost);
 	}
+
 	public RequestItemBuilder requestItem() {
 		return this;
 	}
+
 	public RequestItemBuilder withProductData(ProductData productData) {
-		this.productData=productData;
+		this.productData = productData;
 		return this;
 	}
+
 	public RequestItemBuilder withQuantity(int quantity) {
-		this.quantity=quantity;
+		this.quantity = quantity;
 		return this;
 	}
+
 	public RequestItemBuilder withTotalCost(Money totalCost) {
-		this.totalCost=totalCost;
+		this.totalCost = totalCost;
 		return this;
 	}
 }
