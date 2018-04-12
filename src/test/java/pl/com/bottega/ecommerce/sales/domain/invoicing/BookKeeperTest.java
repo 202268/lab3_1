@@ -1,29 +1,23 @@
-package lab3_1;
+package pl.com.bottega.ecommerce.sales.domain.invoicing;
 import static org.junit.Assert.*;
 
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
+import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
 import pl.com.bottega.ecommerce.sales.domain.client.Client;
-import pl.com.bottega.ecommerce.sales.domain.invoicing.BookKeeper;
-import pl.com.bottega.ecommerce.sales.domain.invoicing.Invoice;
-import pl.com.bottega.ecommerce.sales.domain.invoicing.InvoiceFactory;
-import pl.com.bottega.ecommerce.sales.domain.invoicing.InvoiceRequest;
-import pl.com.bottega.ecommerce.sales.domain.invoicing.RequestItemDouble;
-import pl.com.bottega.ecommerce.sales.domain.invoicing.Tax;
-import pl.com.bottega.ecommerce.sales.domain.invoicing.TaxPolicy;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductData;
+import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductDataBuilder;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 import static org.mockito.Mockito.*;
 
-import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.util.Currency;
+import java.util.Date;
 import java.util.Locale;
 
 public class BookKeeperTest {
@@ -32,14 +26,14 @@ public class BookKeeperTest {
 	TaxPolicy taxPolicy;
 	BookKeeper bookKeeper;
 	InvoiceRequest invoiceRequest;
-	RequestItemDouble requestItem;
+	RequestItem requestItem;
 	Money money;
 	
 	@Before
 	public void setUp() {
 		bookKeeper=new BookKeeper(new InvoiceFactory());
 		clientData=new Client().generateSnapshot();
-		productData=mock(ProductData.class);
+		productData=new ProductDataBuilder().productData().withId(new Id("1")).withName("produkt").withPrice(money).withSnapshotDate(new Date()).build();
 		taxPolicy=mock(TaxPolicy.class);
 		invoiceRequest=new InvoiceRequest(clientData);
 		money=new Money(new BigDecimal(100), Currency.getInstance(Locale.UK));
@@ -48,15 +42,15 @@ public class BookKeeperTest {
 	}
 	@Test
 	public void RequestIssuanceWithOneParameterShouldReturnOneInvoice() {
-		requestItem=new RequestItemDouble(productData, 1, money);
+		requestItem=new RequestItemBuilder().requestItem().withProductData(productData).withQuantity(50).withTotalCost(money).build();
 		invoiceRequest.add(requestItem);
 		Invoice invoice=bookKeeper.issuance(invoiceRequest, taxPolicy);
 		assertThat(invoice.getItems().size(), Matchers.is(1));
 	}
 	@Test
 	public void RequestIssuanceWithTwoParameterShouldCallMethodTwoTimes() {
-		requestItem=new RequestItemDouble(productData, 1, money);
-		RequestItemDouble requestItem2=new RequestItemDouble(productData, 2, money);
+		requestItem=new RequestItemBuilder().requestItem().withProductData(productData).withQuantity(50).withTotalCost(money).build();
+		RequestItem requestItem2=new RequestItemBuilder().requestItem().withProductData(productData).withQuantity(50).withTotalCost(money).build();
 		invoiceRequest.add(requestItem);
 		invoiceRequest.add(requestItem2);
 		bookKeeper.issuance(invoiceRequest, taxPolicy);	
@@ -64,7 +58,7 @@ public class BookKeeperTest {
 	}
 	@Test
 	public void RequestIssuanceWithOneParameterSpecifiedQuantityShouldReturnExpectedValuesInInvoice() {
-		requestItem=new RequestItemDouble(productData, 150, money);
+		requestItem=new RequestItem(productData, 150, money);
 		invoiceRequest.add(requestItem);
 		Invoice invoice=bookKeeper.issuance(invoiceRequest, taxPolicy);	
 		assertThat(invoice.getItems().get(0).getQuantity(), Matchers.is(150));
