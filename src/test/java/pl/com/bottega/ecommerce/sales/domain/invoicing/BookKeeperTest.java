@@ -1,4 +1,5 @@
 package pl.com.bottega.ecommerce.sales.domain.invoicing;
+
 import static org.junit.Assert.*;
 
 import org.hamcrest.Matchers;
@@ -28,44 +29,49 @@ public class BookKeeperTest {
 	InvoiceRequest invoiceRequest;
 	RequestItem requestItem;
 	Money money;
-	
+
 	@Before
 	public void setUp() {
-		bookKeeper=new BookKeeper(new InvoiceFactory());
-		clientData=new Client().generateSnapshot();
-		productData=new ProductDataBuilder().productData().withId(new Id("1")).withName("produkt").withPrice(money).withSnapshotDate(new Date()).build();
-		taxPolicy=mock(TaxPolicy.class);
-		invoiceRequest=new InvoiceRequest(clientData);
-		money=new Money(new BigDecimal(100), Currency.getInstance(Locale.UK));
-		when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(new Tax(money, ""));
-		
+		bookKeeper = new BookKeeper(new InvoiceFactory());
+		clientData = new Client().generateSnapshot();
+		productData = new ProductDataBuilder().productData().build();
+		taxPolicy = mock(TaxPolicy.class);
+		invoiceRequest = new InvoiceRequest(clientData);
+		money = new Money(new BigDecimal(100), Currency.getInstance(Locale.UK));
+		when(taxPolicy.calculateTax(productData.getType(), money)).thenReturn(new Tax(money, ""));
+
 	}
+
 	@Test
 	public void RequestIssuanceWithOneParameterShouldReturnOneInvoice() {
-		requestItem=new RequestItemBuilder().requestItem().withProductData(productData).withQuantity(50).withTotalCost(money).build();
+		requestItem = new RequestItemBuilder().requestItem().withProductData(productData).withTotalCost(money).build();
 		invoiceRequest.add(requestItem);
-		Invoice invoice=bookKeeper.issuance(invoiceRequest, taxPolicy);
+		Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
 		assertThat(invoice.getItems().size(), Matchers.is(1));
 	}
+
 	@Test
 	public void RequestIssuanceWithTwoParameterShouldCallMethodTwoTimes() {
-		requestItem=new RequestItemBuilder().requestItem().withProductData(productData).withQuantity(50).withTotalCost(money).build();
-		RequestItem requestItem2=new RequestItemBuilder().requestItem().withProductData(productData).withQuantity(50).withTotalCost(money).build();
+		requestItem = new RequestItemBuilder().requestItem().withProductData(productData).withTotalCost(money).build();
+		RequestItem requestItem2 = new RequestItemBuilder().requestItem().withProductData(productData)
+				.withTotalCost(money).build();
 		invoiceRequest.add(requestItem);
 		invoiceRequest.add(requestItem2);
-		bookKeeper.issuance(invoiceRequest, taxPolicy);	
-		verify(taxPolicy, times(2)).calculateTax(any(ProductType.class), any(Money.class));
+		bookKeeper.issuance(invoiceRequest, taxPolicy);
+		verify(taxPolicy, times(2)).calculateTax(productData.getType(), money);
 	}
+
 	@Test
 	public void RequestIssuanceWithOneParameterSpecifiedQuantityShouldReturnExpectedValuesInInvoice() {
-		requestItem=new RequestItem(productData, 150, money);
+		requestItem = new RequestItemBuilder().withProductData(productData).withTotalCost(money).build();
 		invoiceRequest.add(requestItem);
-		Invoice invoice=bookKeeper.issuance(invoiceRequest, taxPolicy);	
-		assertThat(invoice.getItems().get(0).getQuantity(), Matchers.is(150));
+		Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+		assertThat(invoice.getItems().get(0).getQuantity(), Matchers.is(1));
 	}
+
 	@Test
 	public void RequestIssuanceWithoutParametersShouldntCallAnyMethod() {
-		bookKeeper.issuance(invoiceRequest, taxPolicy);	
-		verify(taxPolicy, times(0)).calculateTax(any(ProductType.class), any(Money.class));
+		bookKeeper.issuance(invoiceRequest, taxPolicy);
+		verify(taxPolicy, times(0)).calculateTax(productData.getType(), money);
 	}
 }

@@ -5,9 +5,7 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 public class RequestItemBuilder {
 	private ProductData productData;
-
-	private int quantity;
-
+	private int quantity=1;
 	private Money totalCost;
 
 	public RequestItem build() {

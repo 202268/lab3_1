@@ -8,7 +8,7 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 public class ProductDataBuilder {
 	private Id productId = Id.generate();
 	private Money price;
-	private String name;
+	private String name = "test";
 	private Date snapshotDate;
 	private ProductType type = ProductType.FOOD;
 
